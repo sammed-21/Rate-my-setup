@@ -18,7 +18,7 @@ db.connect((err) => {
 
 db.query(`Select * from users`, (err, res)=>{
     if(!err){
-console.log(res.rows,blue)
+console.log(res.rows)
     }
     else{
       console.log(err.message);
