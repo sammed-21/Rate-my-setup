@@ -4,6 +4,7 @@ const morgan = require("morgan")
 const { PORT } = require("./config")
 const { NotFoundError } = require("./utils/errors")
 const authRoutes = require("./routes/auth")
+const postRoutes = require('./routes/posts')
 const security =require('./middleware/security')
 const app = express()
 
@@ -21,6 +22,7 @@ app.use(security.extractUserFromJwt)
 // in the authorization header
 // if it does, attack the decoded user to res.locals
 app.use("/auth", authRoutes)
+app.use('/posts',postRoutes)
 
 /** Handle 404 errors -- this matches everything */
 app.use((req, res, next) => {
