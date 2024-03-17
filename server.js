@@ -4,7 +4,7 @@ const morgan = require("morgan")
 const { PORT } = require("./config")
 const { NotFoundError } = require("./utils/errors")
 const authRoutes = require("./routes/auth")
-
+const security =require('./middleware/security')
 const app = express()
 
 // enable cross-origin resource sharing for all origins for all requests
@@ -16,6 +16,10 @@ app.use(express.json())
 // log requests info
 app.use(morgan("tiny"))
 
+app.use(security.extractUserFromJwt)
+// for every request , check if a token exists
+// in the authorization header
+// if it does, attack the decoded user to res.locals
 app.use("/auth", authRoutes)
 
 /** Handle 404 errors -- this matches everything */
