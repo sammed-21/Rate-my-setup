@@ -2,7 +2,7 @@ const express = require("express")
 const Post = require('../models/post')
 const security = require('../middleware/security')
 const router = express.Router()
-
+const permissions = require('../middleware/permissions')
 router.post("/",security.requireAuthenticatedUser, async (req, res, next) => {
   try {
 // create a new post
@@ -37,10 +37,12 @@ return res.status(200).json({post})
   }
 })
 
-router.put("/:postId", async (req, res, next) => {
+router.patch("/:postId",security.requireAuthenticatedUser, permissions.authedUserOwnsPost, async (req, res, next) => {
   try {
 // create a new post
-
+const {postId} =req.params
+const post = await Post.editPost({postUpdate:req.body, postId})
+return res.status(200).json({post})
 } catch (err) {
     next(err)
   }

@@ -30,12 +30,12 @@ class Post {
                     FROM posts AS p 
                     JOIN users AS u ON u.id=p.user_id
                     WHERE p.id=$1`
-        ,[postId])
+            , [postId])
         const post = results.rows[0]
-       if(!post){
-        throw new NotFoundError();
-       }
-       return post;
+        if (!post) {
+            throw new NotFoundError();
+        }
+        return post;
     }
 
     static async createNewPost({ user, post }) {
@@ -47,7 +47,7 @@ class Post {
                 throw new BadRequestError(`required field -${field} - missing from request body`)
             }
         })
-if(post.caption.length > 140) {
+        if (post.caption.length > 140) {
             throw new BadRequestError(`post caption must be 140 character or less`)
         }
         const result = await db.query(
@@ -60,14 +60,35 @@ if(post.caption.length > 140) {
             created_at AS "createdAt",
             updated_at AS "updatedAt"
             
-             `,[post.caption,post.imageUrl,user.email]
+             `, [post.caption, post.imageUrl, user.email]
         )
         return result.rows[0]
 
     }
 
     static async editPost({ postId, postUpdate }) {
-
+        const requireFields = ['caption']
+        requireFields.forEach(field => {
+            if (!postUpdate.hasOwnProperty(field)) {
+                throw new BadRequestError(`required field -${field} - missing from request body`)
+            }
+        })
+        const result = await db.query(  
+            `
+            UPDATE posts 
+            SET caption =$1,
+                updated_at = NOW()
+                WHERE id=$2
+                RETURNING id,
+                          caption,
+                          image_url AS "imageUrl",
+                          user_id AS "userId",
+                          created_at AS "createdAt",
+                          updated_at AS "updatedAt"
+            
+            `,[postUpdate.caption,postId]
+        )
+        return result.rows[0]
     }
 
 }
